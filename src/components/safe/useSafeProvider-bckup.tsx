@@ -2,11 +2,10 @@ import { useEffect, useCallback, useState } from "react";
 import { useMagic } from "../magic/MagicProvider";
 import { providerToSmartAccountSigner } from "permissionless";
 import { Safe4337Pack } from "@safe-global/relay-kit";
-import Safe from "@safe-global/protocol-kit";
 
 export const useSafeProvider = () => {
   const { magic, publicClient } = useMagic();
-  const [smartClient, setSmartClient] = useState<Safe>();
+  const [smartClient, setSmartClient] = useState<Safe4337Pack>();
 
   const connectToSmartContractAccount = useCallback(async () => {
     if (!magic || !publicClient) return;
@@ -18,26 +17,28 @@ export const useSafeProvider = () => {
       magicProvider
     );
 
-    const saltNonce = Math.trunc(Math.random() * 10 ** 10).toString(); // Random 10-digit integer
-    const protocolKit = await Safe.init({
+    const safe4337Pack = await Safe4337Pack.init({
       provider: magicProvider,
       signer: smartAccountSigner.publicKey,
-      predictedSafe: {
-        safeAccountConfig: {
-          owners: [
-            process.env.NEXT_PUBLIC_AGENT_ADDRESS as string,
-            userInfo.publicAddress ?? "",
-          ],
-          threshold: 1,
-        },
-        safeDeploymentConfig: {
-          saltNonce,
-        },
+      bundlerUrl: pimlicoKey,
+      paymasterOptions: {
+        isSponsored: true,
+        paymasterUrl: pimlicoKey,
+        paymasterAddress: "0x0000000000325602a77416A16136FDafd04b299f", // Sepolia paymaster address
+        paymasterTokenAddress: "0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238", // Sepolia token address
+      },
+      options: {
+        owners: [
+          userInfo.publicAddress ?? "",
+          process.env.NEXT_PUBLIC_AGENT_PRIVATE_KEY as ??"",
+        ],
+        threshold: 1,
       },
     });
 
-    setSmartClient(protocolKit);
-    console.log("protocolKit=======", protocolKit);
+    setSmartClient(safe4337Pack);
+
+    console.log("safe4337Pack=======", safe4337Pack);
   }, [magic, publicClient]);
 
   useEffect(() => {

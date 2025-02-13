@@ -1,20 +1,20 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import Divider from '@/components/ui/Divider';
-import { LoginProps } from '@/utils/types';
-import { logout } from '@/utils/common';
-import { useMagic } from '../MagicProvider';
-import Card from '@/components/ui/Card';
-import CardHeader from '@/components/ui/CardHeader';
-import CardLabel from '@/components/ui/CardLabel';
-import Spinner from '@/components/ui/Spinner';
-import { getNetworkName, getNetworkToken } from '@/utils/network';
-import { useSafeProvider } from '@/components/safe/useSafeProvider';
-import { formatEther } from 'viem';
+import { useCallback, useEffect, useMemo, useState } from "react";
+import Divider from "@/components/ui/Divider";
+import { LoginProps } from "@/utils/types";
+import { logout } from "@/utils/common";
+import { useMagic } from "../MagicProvider";
+import Card from "@/components/ui/Card";
+import CardHeader from "@/components/ui/CardHeader";
+import CardLabel from "@/components/ui/CardLabel";
+import Spinner from "@/components/ui/Spinner";
+import { getNetworkName, getNetworkToken } from "@/utils/network";
+import { useSafeProvider } from "@/components/safe/useSafeProvider";
+import { formatEther } from "viem";
 
 const UserInfo = ({ token, setToken }: LoginProps) => {
   const { magic, web3, publicClient } = useMagic();
   const { smartClient } = useSafeProvider();
-  const [copied, setCopied] = useState('Copy');
+  const [copied, setCopied] = useState("Copy");
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [magicBalance, setMagicBalance] = useState<string>("...");
   const [safeBalance, setSafeBalance] = useState<string>("...");
@@ -33,7 +33,7 @@ const UserInfo = ({ token, setToken }: LoginProps) => {
       }
     }
     if (safeAddress && smartClient) {
-      const safeBalance = await smartClient?.protocolKit.getBalance();
+      const safeBalance = await smartClient?.getBalance();
       if (safeBalance == BigInt(0)) {
         setSafeBalance("0");
       } else {
@@ -44,7 +44,7 @@ const UserInfo = ({ token, setToken }: LoginProps) => {
 
   const getSmartContractAccount = useCallback(async () => {
     if (smartClient) {
-      const address = await smartClient.protocolKit.getAddress();
+      const address = await smartClient.getAddress();
       setSafeAddress(address);
     }
   }, [smartClient]);
@@ -79,11 +79,11 @@ const UserInfo = ({ token, setToken }: LoginProps) => {
   }, [magic, setToken]);
 
   const copy = useCallback(() => {
-    if (magicAddress && copied === 'Copy') {
-      setCopied('Copied!');
+    if (magicAddress && copied === "Copy") {
+      setCopied("Copied!");
       navigator.clipboard.writeText(magicAddress);
       setTimeout(() => {
-        setCopied('Copy');
+        setCopied("Copy");
       }, 1000);
     }
   }, [copied, magicAddress]);

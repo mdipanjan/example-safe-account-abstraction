@@ -41,25 +41,25 @@ const SendSafeTransaction = () => {
     const transaction = {
       to: toAddress,
       value: parseEther(amount).toString(),
-      data: '0x'
+      data: "0x",
     };
 
     const transactions = [transaction];
 
-    const safeOperation = await smartClient.createTransaction({ transactions })
-    const signedSafeOperation = await smartClient.signSafeOperation(safeOperation);
-    const userOperationHash = await smartClient.executeTransaction({
-      executable: signedSafeOperation
-    });
+    const safeOperation = await smartClient.createTransaction({ transactions });
+    // const signedSafeOperation = await smartClient.signSafeOperation(safeOperation);
+    // const userOperationHash = await smartClient.executeTransaction({
+    //   executable: signedSafeOperation
+    // });
 
     let userOperationReceipt = null;
 
-    while (!userOperationReceipt) {
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      userOperationReceipt = await smartClient.getUserOperationReceipt(userOperationHash);
-    }
+    // while (!userOperationReceipt) {
+    //   await new Promise((resolve) => setTimeout(resolve, 2000));
+    //   userOperationReceipt = await smartClient.getUserOperationReceipt(userOperationHash);
+    // }
 
-    console.log('Transaction successful:', userOperationReceipt);
+    console.log("Transaction successful:", userOperationReceipt);
     if (userOperationReceipt) {
       setToAddress("");
       setAmount("");
