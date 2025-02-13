@@ -13,7 +13,7 @@ import { formatEther } from "viem";
 
 const UserInfo = ({ token, setToken }: LoginProps) => {
   const { magic, web3, publicClient } = useMagic();
-  const { smartClient } = useSafeProvider();
+  const { smartClient, createSafe, reInitSafe } = useSafeProvider();
   const [copied, setCopied] = useState("Copy");
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [magicBalance, setMagicBalance] = useState<string>("...");
@@ -99,6 +99,27 @@ const UserInfo = ({ token, setToken }: LoginProps) => {
       <div className="flex-row">
         <div className="green-dot" />
         <div className="connected">Connected to {getNetworkName()}</div>
+      </div>
+      <div>
+        <button
+          className="bg-blue-500 text-white p-2 rounded-md"
+          onClick={() => {
+            createSafe();
+          }}
+        >
+          Create Safe
+        </button>
+      </div>
+
+      <div className="mt-2">
+        <button
+          className="bg-green-500 text-white p-2 rounded-md"
+          onClick={() => {
+            reInitSafe();
+          }}
+        >
+          Check Safe
+        </button>
       </div>
       <Divider />
       <CardLabel
