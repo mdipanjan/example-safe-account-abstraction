@@ -1,3 +1,4 @@
+/* eslint-disable quotes */
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Divider from "@/components/ui/Divider";
 import { LoginProps } from "@/utils/types";
@@ -10,10 +11,12 @@ import Spinner from "@/components/ui/Spinner";
 import { getNetworkName, getNetworkToken } from "@/utils/network";
 import { useSafeProvider } from "@/components/safe/useSafeProvider";
 import { formatEther } from "viem";
-
+import { useCowSwap } from "@/components/cowSwap/useCowSwap";
 const UserInfo = ({ token, setToken }: LoginProps) => {
   const { magic, web3, publicClient } = useMagic();
-  const { smartClient, createSafe, reInitSafe } = useSafeProvider();
+  const { smartClient, createSafe, reInitSafe, newProtocolKit } =
+    useSafeProvider();
+  const { initSwap } = useCowSwap();
   const [copied, setCopied] = useState("Copy");
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [magicBalance, setMagicBalance] = useState<string>("...");
@@ -33,7 +36,16 @@ const UserInfo = ({ token, setToken }: LoginProps) => {
       }
     }
     if (safeAddress && smartClient) {
-      const safeBalance = await smartClient?.getBalance();
+      const safeAddress = localStorage.getItem("safeAddress");
+      // console.log("safeAddress=======", safeAddress);
+      // return;
+      if (!safeAddress) return;
+
+      const newProtocolKit = await smartClient.connect({
+        safeAddress: safeAddress as string,
+      });
+
+      const safeBalance = await newProtocolKit.getBalance();
       if (safeBalance == BigInt(0)) {
         setSafeBalance("0");
       } else {
@@ -44,8 +56,17 @@ const UserInfo = ({ token, setToken }: LoginProps) => {
 
   const getSmartContractAccount = useCallback(async () => {
     if (smartClient) {
-      const address = await smartClient.getAddress();
-      setSafeAddress(address);
+      const safeAddress = localStorage.getItem("safeAddress");
+      // console.log("safeAddress=======", safeAddress);
+      // return;
+      if (!safeAddress) return;
+
+      const newProtocolKit = await smartClient.connect({
+        safeAddress: safeAddress as string,
+      });
+      const connectedSafeAccount = await newProtocolKit.getAddress();
+
+      setSafeAddress(connectedSafeAccount);
     }
   }, [smartClient]);
 
@@ -119,6 +140,16 @@ const UserInfo = ({ token, setToken }: LoginProps) => {
           }}
         >
           Check Safe
+        </button>
+      </div>
+      <div className="mt-2">
+        <button
+          className="bg-red-500 text-white p-2 rounded-md"
+          onClick={() => {
+            initSwap();
+          }}
+        >
+          Init Swap on CowSwap
         </button>
       </div>
       <Divider />

@@ -13,7 +13,6 @@ export const useSafeProvider = () => {
   const connectToSmartContractAccount = useCallback(async () => {
     if (!magic || !publicClient) return;
 
-    const pimlicoKey = `https://api.pimlico.io/v2/sepolia/rpc?apikey=${process.env.NEXT_PUBLIC_PIMLICO_API_KEY}`;
     const magicProvider = await magic.wallet.getProvider();
     const userInfo = await magic.user.getInfo();
     const smartAccountSigner = await providerToSmartAccountSigner(
@@ -87,19 +86,38 @@ export const useSafeProvider = () => {
     const isSafeDeployed = await newProtocolKit.isSafeDeployed(); // True
     const safeOwners = await newProtocolKit.getOwners();
     const safeThreshold = await newProtocolKit.getThreshold();
+    const safeProvider = await newProtocolKit.getSafeProvider();
+    const connectedSafeAccount = await newProtocolKit.getAddress();
+    const balance = await newProtocolKit.getBalance();
 
     console.log("safe info=======", {
       isSafeDeployed,
       safeOwners,
       safeThreshold,
+      safeProvider,
+      connectedSafeAccount,
+      balance,
     });
     return {
       isSafeDeployed,
       safeOwners,
       safeThreshold,
+      connectedSafeAccount,
     };
   }, [smartClient]);
 
+  const newProtocolKit = async () => {
+    if (!smartClient) return;
+    const safeAddress = localStorage.getItem("safeAddress");
+    // console.log("safeAddress=======", safeAddress);
+    // return;
+    if (!safeAddress) return;
+
+    const newProtocolKit = await smartClient.connect({
+      safeAddress: safeAddress as string,
+    });
+    return newProtocolKit;
+  };
   useEffect(() => {
     if (magic?.user.isLoggedIn) {
       connectToSmartContractAccount();
@@ -110,5 +128,6 @@ export const useSafeProvider = () => {
     smartClient,
     createSafe,
     reInitSafe,
+    newProtocolKit,
   };
 };
